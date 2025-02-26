@@ -86,69 +86,84 @@ async function delay(ms) {
 
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
-	console.log("in create race")
+	console.log("in create race");
 
-	// render starting UI
-	renderAt('#race', renderRaceStartView(store.track_name))
+	// Render starting UI
+	renderAt('#race', renderRaceStartView(store.track_name));
 
 	// TODO - Get player_id and track_id from the store
-	
-	// const race = TODO - call the asynchronous method createRace, passing the correct parameters
+	const player_id = store.player_id;
+	const track_id = store.track_id;
 
-	// TODO - update the store with the race id in the response
-	// TIP - console logging API responses can be really helpful to know what data shape you received
-	console.log("RACE: ", race)
-	// store.race_id = 
-	
+	// TODO - Call the asynchronous method createRace, passing the correct parameters
+	const race = await createRace(player_id, track_id);
+
+	// TODO - Update the store with the race id in the response
+	console.log("RACE: ", race);
+	store.race_id = race.id;
+
 	// The race has been created, now start the countdown
-	// TODO - call the async function runCountdown
+	// TODO - Call the async function runCountdown
+	await runCountdown();
 
-	// TODO - call the async function startRace
-	// TIP - remember to always check if a function takes parameters before calling it!
+	// TODO - Call the async function startRace
+	await startRace(store.race_id);
 
-	// TODO - call the async function runRace
+	// TODO - Call the async function runRace
+	await runRace(store.race_id);
 }
 
 function runRace(raceID) {
-	return new Promise(resolve => {
-	// TODO - use Javascript's built in setInterval method to get race info (getRace function) every 500ms
+	return new Promise((resolve, reject) => {
+		// TODO - Use Javascript's built-in setInterval method to get race info every 500ms
+		const raceInterval = setInterval(async () => {
+			try {
+				const res = await getRace(raceID);
 
-	/* 
-		TODO - if the race info status property is "in-progress", update the leaderboard by calling:
+				// TODO - If the race info status property is "in-progress", update the leaderboard
+				if (res.status === "in-progress") {
+					renderAt('#leaderBoard', raceProgress(res.positions));
+				}
 
-		renderAt('#leaderBoard', raceProgress(res.positions))
-	*/
-
-	/* 
-		TODO - if the race info status property is "finished", run the following:
-
-		clearInterval(raceInterval) // to stop the interval from repeating
-		renderAt('#race', resultsView(res.positions)) // to render the results view
-		resolve(res) // resolve the promise
-	*/
-	})
-	// remember to add error handling for the Promise
+				// TODO - If the race info status property is "finished", stop the interval and render results
+				if (res.status === "finished") {
+					clearInterval(raceInterval); // Stop the interval
+					renderAt('#race', resultsView(res.positions)); // Render results
+					resolve(res); // Resolve the promise
+				}
+			} catch (error) {
+				clearInterval(raceInterval); // Stop the interval on error
+				reject(error); // Reject the promise
+			}
+		}, 500);
+	});
 }
 
 async function runCountdown() {
 	try {
-		// wait for the DOM to load
-		await delay(1000)
-		let timer = 3
+		// Wait for the DOM to load
+		await delay(1000);
+		let timer = 3;
 
-		return new Promise(resolve => {
-			// TODO - use Javascript's built in setInterval method to count down once per second
+		return new Promise((resolve) => {
+			// TODO - Use Javascript's built-in setInterval method to count down once per second
+			const countdownInterval = setInterval(() => {
+				// Update the DOM with the current countdown value
+				document.getElementById('big-numbers').innerHTML = --timer;
 
-			// run this DOM manipulation inside the set interval to decrement the countdown for the user
-			document.getElementById('big-numbers').innerHTML = --timer
-
-			// TODO - when the setInterval timer hits 0, clear the interval, resolve the promise, and return
-
-		})
-	} catch(error) {
+				// TODO - When the timer hits 0, clear the interval and resolve the promise
+				if (timer === 0) {
+					clearInterval(countdownInterval);
+					resolve();
+				}
+			}, 1000);
+		});
+	} catch (error) {
 		console.log(error);
 	}
 }
+
+
 
 function handleSelectRacer(target) {
 	console.log("selected a racer", target.id)
