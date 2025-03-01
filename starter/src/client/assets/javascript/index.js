@@ -88,12 +88,13 @@ async function handleCreateRace() {
 
 		// Update the store with the race id in the response
 		console.log("RACE:", race);
-		store.race_id = race.id;
+		store.race_id = race.id; // Use race.id instead of race.ID
 
 		// The race has been created, now start the countdown
 		await runCountdown();
 
 		// Start the race
+		console.log("Starting race with ID:", store.race_id);
 		await startRace(store.race_id);
 
 		// Run the race
@@ -342,7 +343,12 @@ function getTracks() {
 		method: "GET",
 		...defaultFetchOpts(),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with getTracks request:", err);
 			throw err;
@@ -355,7 +361,12 @@ function getRacers() {
 		method: "GET",
 		...defaultFetchOpts(),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with getRacers request:", err);
 			throw err;
@@ -371,7 +382,12 @@ function createRace(player_id, track_id) {
 		...defaultFetchOpts(),
 		body: JSON.stringify(body),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with createRace request:", err);
 			throw err;
@@ -384,7 +400,12 @@ function getRace(id) {
 		method: "GET",
 		...defaultFetchOpts(),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with getRace request:", err);
 			throw err;
@@ -397,7 +418,12 @@ function startRace(id) {
 		method: "POST",
 		...defaultFetchOpts(),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with startRace request:", err);
 			throw err;
@@ -410,7 +436,12 @@ function accelerate(id) {
 		method: "POST",
 		...defaultFetchOpts(),
 	})
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+			return res.json();
+		})
 		.catch((err) => {
 			console.error("Problem with accelerate request:", err);
 			throw err;
